@@ -1,4 +1,5 @@
 const express = require('express');
+// inicializar as rotas do express
 const router = express.Router();
 
 const filmes = [
@@ -63,40 +64,75 @@ const filmes = [
     },
 ]
 
-module.exports = router;
+// [GET] /filmes - Retornar uma lista de filmes
+router.get('/', (req, res) => {
+    res.send(filmes);
+})
 
-router.get("/", (req,res) =>{
-res.send(filmes);
-});
-
-router.get("/:id", (req,res) =>{
-const idParam = req.params.id;
-const filme = filmes.find(filme => filme.id == idParam); 
-res.send(filme);
-});
-
-router.post('/add',(req,res) =>{
-const incluir = req.body;
-incluir.id = filmes[filmes.length -1].id + 1;
-albuns.push(incluir);
-res.send({
-albuns,
-message: `Filme ${incluir.titulo} Cadastrado com Sucesso !`,});
-});
-
-router.put('/edit/:id',(req,res) =>{
+// [GET] /filmes/{id} - Retornar um unico filmes por id.
+router.get('/:id', (req, res) => {
     const idParam = req.params.id;
-    const novoFilme = req.body;
+    const filme = filmes.find(filme => filme.id == idParam);
+
+    // verifica se o filme nao foi encontrado
+    if(!filme) {
+        res.status(404).send({error: 'Filme não encontrado.'});
+        return;
+    }
+
+    res.send(filme);
+})
+
+// [POST] /filmes/add - Cadastro de um novo filme
+router.post('/add', (req, res) => {
+    // recebi o objeto do filme para cadastar vindo do cliente (via requisicao http POST)
+    const filme = req.body;
+
+    // validacao se existe os campos
+
+    if(!filme || !filme.nome || !filme.imagem || !filme.genero || !filme.nota || !filme.descricao) {
+        res.status(400).send({
+            message: 'Filme inválido, está faltando os campos titulo e imagem'
+        })
+        return;
+    }
+    
+    filme.id = filmes[filmes.length -1].id + 1;
+    filmes.push(filme);
+    res.status(201).send({
+        message: 'Filme Cadastrado com sucesso!',
+        data: filme
+    });
+})
+
+// [PUT] /filmes/edit/{id} - Edita um filme de acordo com o seu id e objeto recebido
+router.put('/edit/:id', (req, res) => {
+    // o objeto que veio do front para atualizar o filme com o id recebido
+    const filmeEdit = req.body;
+    // o id recebido via parametro
+    const idParam = req.params.id;
+    // procura o indice do filme pre cadastrado na lista de acordo com o id recebido para atualizalo
     let index = filmes.findIndex(filme => filme.id == idParam);
+
+    if(index < 0) {
+        res.status(404).send({
+            error: 'O Filme que voce está tentando editar nao foi encontrado.'
+        })
+        return;
+    }
+
+    // spread operator ...
+    // faz um espelho do item na lista e um espelho do objeto atualizado e junta os 2
     filmes[index] = {
         ...filmes[index],
-        ...novoFilme
+        ...filmeEdit
     }
+
     res.send({
-        filmes,
-        message:'Editado com Sucesso'
+        message: `Filme ${filmes[index].nome} atualizado com sucesso!`,
+        data: filmes[index]
     })
-});
+})
 
 router.put('/:status/:id',(req,res) =>{
     const idParam = req.params.id;
@@ -111,14 +147,20 @@ router.put('/:status/:id',(req,res) =>{
         
 });
 
-router.delete('/delete/:id',(req,res) =>{
+// [DELETE] /filmes/delete/{id} = exclui um item da lista de acordo com o seu id
+
+router.delete('/delete/:id', (req, res) => {
+    // acessamos o id recebido via parametro
     const idParam = req.params.id;
+
     const index = filmes.findIndex(filme => filme.id == idParam);
     const nome = filmes[index];
+    //excluimos o filme da lista de acordo com o seu indice.
     filmes.splice(index, 1);
     res.send({
-        message: `Filme ${nome.titulo} excluido com sucesso !`,
+        message: `Filme ${nome.nome} excluido com sucesso!`,
     })
-});
+})
 
+// exporta as rotas para serem usadas no index.
 module.exports = router;

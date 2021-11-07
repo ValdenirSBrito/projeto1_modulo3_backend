@@ -1,2 +1,2 @@
-# projeto1_modulo3_backend
-Repositório criado paro colocar toda a estrutura Backend do primeiro projeto do Módulo 3 da Blue.
+# projeto1_modulo3_fullstack
+ Projeto desenvolvido com as primeiras aulas do Módulo 3 - FullStack da Blue

@@ -1,14 +1,26 @@
+// Backend - Projeto Catálogo de Filmes
+// importacao das libs externas (express e cors)
 const express = require('express');
 const cors = require('cors');
+
+// importar as rotas que eu vou ultilizar
+const filmesRouter = require('./routes/filmes.routes');
+
+// inicializacao do express
 const app = express();
 
-app.use(express.json());
-app.use(cors());
-const port = 3000;
-//albuns[albuns.length -1].id + 1
-const albunsRouter = require('./routes/filmes.routes');
-app.use("/filmes",albunsRouter); 
 
-app.listen(port,()=>{
-    console.log(`servidor rodando na porta ${port}`);
-});
+// habilitar o modo json do express; JSON (Javascript Objective Notation)
+app.use(express.json());
+
+// habilitar o midleware do cors
+app.use(cors());
+
+//inicializar a rota /vagas de acordo com as configuracoes no meu arquivo de rotas
+app.use('/filmes', filmesRouter);
+
+
+const port = 3000;
+app.listen(port, () => {
+    console.log(`Servidor rodando na porta ${port}`);
+})
